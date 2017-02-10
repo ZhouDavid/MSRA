@@ -63,8 +63,10 @@ if __name__ == '__main__':
 	# plt.scatter(features[:,0],features[:,1],c=colors)
 	# plt.xlabel('Scaled age')
 	# plt.ylabel('Tumor size')
-	
-	input = input_variable(input_dim,np.float32)
+	input_seq_axis = Axis('inputAxis')
+	label_seq_axis = Axis('labelAxis')
+
+	input = input_variable(input_dim, np.float32)
 	output_dim = num_output_classes
 	z = linear_layer(input,output_dim)
 
@@ -83,6 +85,7 @@ if __name__ == '__main__':
 
 	training_progress_output_freq = 50
 	plotdata = {"batchsize":[], "loss":[], "error":[]}
+
 
 	for i in range(0, num_minibatches_to_train):
 		features, labels = generate_random_data_sample(minibatch_size, input_dim, num_output_classes)
