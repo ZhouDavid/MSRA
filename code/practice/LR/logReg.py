@@ -40,7 +40,8 @@ def linear_layer(input_var,output_dim):
 	weight_param = parameter(shape=(input_dim,output_dim))
 	bias_param = parameter(shape = (output_dim))
 	mydict['w'],mydict['b'] = weight_param,bias_param
-
+	#tmp = times(input_var,weight_param)+bias_param
+	#print("middle output {},{}".format(tmp[0],tmp[1]))
 	return times(input_var,weight_param)+bias_param
 def moving_average(a,w=10):
 	if len(a)<w:

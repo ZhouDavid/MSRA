@@ -124,9 +124,9 @@ def sequence_to_sequence_translator(debug_output=False, run_test=False):
     decoder_history_hook = alias(label_sequence, name='decoder_history_hook') # copy label_sequence
 
     decoder_input = element_select(is_first_label, label_sentence_start_scattered, past_value(
-        decoder_history_hook))
+        decoder_history_hook))#???
 
-    decoder_outputH = stabilize(decoder_input)
+    decoder_outputH = stabilize(decoder_input)#???
     for i in range(0, num_layers):
         if (i > 0):
             recurrence_hookH = past_value
