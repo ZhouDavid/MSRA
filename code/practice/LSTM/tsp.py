@@ -61,7 +61,7 @@ TRAINING_STEPS = 10000
 BATCH_SIZE=100
 EPOCHS = 20
 
-x = C.blocks.Input(1)
+x = C.blocks.input(1)
 z = create_model(x)
 l = C.blocks.Input(1,dynamic_axes = z.dynamic_axes,name='y')
 
