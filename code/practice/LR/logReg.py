@@ -35,6 +35,7 @@ def generate_random_data_sample(sample_size,feature_dim,num_classes):
 	return X,Y
 
 def linear_layer(input_var,output_dim):
+	
 	input_dim = input_var.shape[0]
 	weight_param = parameter(shape=(input_dim,output_dim))
 	bias_param = parameter(shape = (output_dim))
