@@ -7,8 +7,8 @@ sys.setdefaultencoding('utf8')
 
 input_path1 = 'D:\data\\raw\zizhi\\origin.txt'
 input_path2 = 'D:\data\\raw\zizhi\\trans.txt'
-output_path1 = 'origin2.txt'
-output_path2 = 'trans2.txt'
+output_path1 = 'D:\data\\raw\zizhi\\origin2.txt'
+output_path2 = 'D:\data\\raw\zizhi\\trans2.txt'
 
 fin1 = open(input_path1,'r')  
 fin2 = open(input_path2,'r')
@@ -20,7 +20,7 @@ line_index_list = []
 count=0
 for line in fin1.readlines():
 	line = unicode(line)
-	if len(line)<3:
+	if len(line)<3: #碰到一个空行，直接跳过
 		continue
 	if line[0]=='　':
 		line_index_list.append(line_index)
@@ -28,17 +28,11 @@ for line in fin1.readlines():
 		if line.startswith('['):
 			start = line.find(']')
 			line = line[start+1:len(line)]
-		# try:
-		# 	line[len(line)-1]	
-		# except:
-		# 	print 'here'
-		# 	print line_index
-		# 	input()
-
 
 		fout1.write(line)
 		count+=1
 	line_index+=1
+	
 fout1.close()
 
 print count

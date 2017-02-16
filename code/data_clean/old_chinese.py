@@ -15,24 +15,53 @@ sys.setdefaultencoding('utf8')
 '''
 chinesePattern = re.compile(u'[\u4e00-\u9fa5]+')
 
-f = open('D:\data\\raw\zizhi\out5.txt','r')
+f = open('D:\data\\raw\zizhi\out6.txt','r')
+#ff = open('D:\data\\raw\zizhi\out6.txt','w')
 # fout = open('out5.txt','w')
 # for line in f.readlines():
 # 	line = unicode(line)
 # 	if line=='　\n':
 # 		continue
 # 	fout.write(line)
+def is_bad_line(line):
+	count=0
+	pos = -1
+	for i,c in enumerate(line):
+		if c == '[':
+			count+=1
+			pos = i
+	if count>1:
+		return pos
 
-fout1 = open('origin.txt','w')
-fout2 = open('trans.txt','w')
+	return -1
+
+# def 
+fout1 = open('D:\data\\raw\zizhi\\origin.txt','w')
+fout2 = open('D:\data\\raw\zizhi\\trans.txt','w')
 line_num = 1
 count = 0
-for line in f.readlines():
+
+lines = []
+for i,line in enumerate(f.readlines()):
+	pos = is_bad_line(line)
+	if not pos == -1:
+		new_line = line[pos:len(line)]
+		old_line = line[0:pos-1]+'\n'
+		lines.append(old_line)
+		lines.append(new_line)
+	else:
+		lines.append(line)
+
+for line in lines:
+	#ff.write(line)
 	line = line.replace('>','')
 	if line_num%2:
 		fout1.write(line.strip()+'\n')
 	else:
 		fout2.write(line.strip()+'\n')
 	line_num+=1
+
+		
 fout1.close()
 fout2.close()
+
