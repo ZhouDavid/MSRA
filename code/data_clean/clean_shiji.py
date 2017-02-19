@@ -1,12 +1,14 @@
 #-*- coding:utf-8 -*-
 import chardet
 import pdb
+from sentence_sim import similarity
 #in_origin_path = 'E:\MSRA\dataset\\twenty_four_history\\total_origin\shiji.txt'
-in_origin_path = 'D:\MSRA\dataset\\raw\\twenty_four_history-v2\origin\shiji.txt'
-in_trans_path = 'D:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji.txt'
-out_origin_path = 'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt'
-out_trans_path = 'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt'
+in_origin_path = 'E:\MSRA\dataset\\raw\\twenty_four_history-v2\origin\shiji.txt'
+in_trans_path = 'E:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji.txt'
+out_origin_path = 'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt'
+out_trans_path = 'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt'
 
+sim_threshold = 0.1
 
 def find_title(line,titles):
 	for i,title in enumerate(titles):
@@ -23,75 +25,79 @@ def deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_tran
 	file.close()
 	titles = []
 	context = lines[0:len(lines)]  #正文
-	paras = []
+	articles = []
+	article = ''
 	para = ''
-	for line in context:
+	for i,line in enumerate(context):
 		index = line.find('●')
 		if not index ==-1:
-			if len(para)>0:
-				paras.append(para+'</p>\n')
+			if len(article)>0:
+				articles.append(article+para+'</para>\n</article>\n')
 				para = ''
-			#cur_title = origin_category[title_index]
-		
 			cur_title = line[index+3:len(line)]
 			titles.append(cur_title)
 			start = cur_title.find('·')+2
 			end = cur_title.find('第')
 			cur_title= cur_title[start:end]
+			article = '<article>\n  <title>'+cur_title.strip()+'</title>\n'
 
-			line = '<p>'+'<title>'+cur_title.strip()+'</title>'
-			para+=line.strip()
 		else:
-			para+=line.strip()
+			if line.startswith(' '):
+				if len(para)>0:
+					article+=para+'</para>\n'
+				para = '  <para>'+line.strip()
+			else:
+				line = line.strip()
+				if len(line)>0:
+					para += line
 
-	paras.append(para)
+	articles.append(article+para+'</para>\n</article>')
 	file = open(out_origin_path,'w')
-	file.writelines(paras)
+	file.writelines(articles)
 	file.close()
 
-	'''
-	处理译文
-	'''
-	got_titles=[]
-	def is_title(line):
-		for title in titles:
-			start = title.find('·')+2
-			end = title.find('第')
-			title= title[start:end]
-			if line.startswith(title):
-				got_titles.append(title+'\n')
-				return end-start
-		return -1
+	# '''
+	# 处理译文
+	# '''
+	# got_titles=[]
+	# def is_title(line):
+	# 	for title in titles:
+	# 		start = title.find('·')+2
+	# 		end = title.find('第')
+	# 		title= title[start:end]
+	# 		if line.startswith(title):
+	# 			got_titles.append(title+'\n')
+	# 			return end-start
+	# 	return -1
 
-	file=open(in_trans_path,'r')
-	lines = file.readlines()
-	file.close()
-	para =''
-	paras=[]
-	title_num = 0
-	for line in lines:
-		name_length = is_title(line)
-		if name_length>0:
-			title_num+=1
-			if len(para)>0:
-				paras.append(para+'</p>\n')
+	# file=open(in_trans_path,'r')
+	# lines = file.readlines()
+	# file.close()
+	# para =''
+	# paras=[]
+	# title_num = 0
+	# for line in lines:
+	# 	name_length = is_title(line)
+	# 	if name_length>0:
+	# 		title_num+=1
+	# 		if len(para)>0:
+	# 			paras.append(para+'</article>\n')
+	# 		para ='<article>\n  <title>'+line[0:name_length].strip()+'</title>\n'+line[name_length:len(line)].strip()
+	# 	else:
+	# 		para+=line.strip()
+	# print title_num
+	# paras.append(para)
+	# file=open(out_trans_path,'w')
+	# file.writelines(paras)
+	# file.close()
 
-			para ='<p>'+'<title>'+line[0:name_length]+'</title>'+line[name_length:len(line)].strip()
-		else:
-			para+=line.strip()
-	print title_num
-	paras.append(para)
-	file=open(out_trans_path,'w')
-	file.writelines(paras)
-	file.close()
-
-	leak = []
-	clean_titles=[]
-	for title in titles:
-		start = title.find('·')+2
-		end = title.find('第')
-		title= title[start:end]
-		clean_titles.append(title+'\n')
+	# leak = []
+	# clean_titles=[]
+	# for title in titles:
+	# 	start = title.find('·')+2
+	# 	end = title.find('第')
+	# 	title= title[start:end]
+	# 	clean_titles.append(title+'\n')
 
 	'''
 	筛选出在译文中的篇目
@@ -114,7 +120,7 @@ def abstract_content(line):
 	end = line.find('</p>')
 	return line[start:end]
 
-def generate_trans_pair(in_origin_path,in_trans_path,out_origin_path,out_trans_path):
+def sentence_split(in_origin_path,in_trans_path,out_origin_path,out_trans_path):
 	fin1 = open(in_origin_path,'r')
 	fin2 = open(in_trans_path,'r')
 	origin_lines = fin1.readlines()
@@ -151,20 +157,83 @@ def generate_trans_pair(in_origin_path,in_trans_path,out_origin_path,out_trans_p
 	fout1.close()
 	fout2.close()
 
-
-
-
+def sentence_alignment(in_origin_path,in_trans_path):
+	origin_sentences = open(in_origin_path,'r').readlines()
+	trans_sentences = open(in_trans_path,'r').readlines()
+	pair = []
+	if len(origin_sentences)<len(trans_sentences):
+		for i,s in enumerate(origin_sentences):
+			print similarity(s,trans_sentences[i])
+	else:
+		i = 0 #trans 指针
+		j = 0 #origin 指针
+		for trans in trans_sentences:
+			try:
+				origin_sim,_ = similarity(origin_sentences[j],trans)
+				print _
+				input()
+				if origin_sim < sim_threshold:
+					#origin不动，向前添加trans
+					print (i,origin_sim)
+					new_trans = trans.strip()+trans_sentences[i+1].strip()
+					cur_sim = similarity(origin_sentences[j],new_trans)
+					print (i,cur_sim)
+					input()
+					if origin_sim<cur_sim and cur_sim>=sim_threshold:
+						pair.append((origin_sentences[i],new_trans))
+						i+=1
+					else:
+						#trans不动,向前添加origin
+						new_origin = origin_sentences[j].strip()+origin_sentences[j+1].strip()
+						cur_sim = similarity(new_origin,trans)
+						if origin_sim < cur_sim and cur_sim >=sim_threshold:
+							pair.append((new_origin,trans))
+							j+=1
+				else:
+					pair.append((origin_sentences[i],trans))
+			except Exception,e:
+				print e
+				input()
+			i+=1
+			j+=1
 	
+def abstract_trans(input_path):
+	'''
+	从说明、原文、注解中抽取译文中
+	'''
+	trans = open(input_path,'r').readlines()
+	#trans = map(lambda x:x.decode('utf-8'),trans)
+	title_list = open('E:\MSRA\dataset\category\shiji_category.txt','r').readlines()
+	title_list = map(lambda x:x.decode('utf-8'),title_list)
+	articles = []
+	out = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt','w')
+	is_in_content = False
+	article=''
+	for i,line in enumerate(trans):
+		if not line.find('【原文】')==-1:
+			article+='</article>\n'
+			articles.append(article)
+			is_in_content = False	
+		if is_in_content:
+			line = line.strip()
+			if len(line)>0:
+				article+='  <para>'+line+'</para>\n'
+		else:				
+			if not line.find('《史记》译注')==-1:
+				article = '<article>\n  <title>'+trans[i+1].strip()+'</title>\n'
+
+			if not line.find('【译文】')==-1:
+				is_in_content = True
+
+	out.writelines(articles)
+	out.close()
+
 
 if __name__ == '__main__':
-	#deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_trans_path)
-	generate_trans_pair('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt',\
-		'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt',\
-		'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt',\
-		'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt')
-	# # s = '卷一·五帝本纪第一'
-	# start = s.find('·')
-	# end = s.find('第')
-	# print(start,end)
-	# f=open('tmp.txt','w')
-	# f.write(s[start+2:end])
+	deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_trans_path)
+	# generate_trans_pair('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt',\
+	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt',\
+	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt',\
+	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt')
+	#sentence_alignment('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt')
+	abstract_trans('E:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji2.txt')
