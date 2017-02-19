@@ -3,10 +3,10 @@ import chardet
 import pdb
 from sentence_sim import similarity
 #in_origin_path = 'E:\MSRA\dataset\\twenty_four_history\\total_origin\shiji.txt'
-in_origin_path = 'E:\MSRA\dataset\\raw\\twenty_four_history-v2\origin\shiji.txt'
-in_trans_path = 'E:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji.txt'
-out_origin_path = 'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt'
-out_trans_path = 'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt'
+in_origin_path = 'D:\MSRA\dataset\\raw\\twenty_four_history-v2\origin\shiji.txt'
+in_trans_path = 'D:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji.txt'
+out_origin_path = 'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt'
+out_trans_path = 'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt'
 
 sim_threshold = 0.1
 
@@ -203,10 +203,10 @@ def abstract_trans(input_path):
 	'''
 	trans = open(input_path,'r').readlines()
 	#trans = map(lambda x:x.decode('utf-8'),trans)
-	title_list = open('E:\MSRA\dataset\category\shiji_category.txt','r').readlines()
+	title_list = open('D:\MSRA\dataset\category\shiji_category.txt','r').readlines()
 	title_list = map(lambda x:x.decode('utf-8'),title_list)
 	articles = []
-	out = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt','w')
+	out = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt','w')
 	is_in_content = False
 	article=''
 	for i,line in enumerate(trans):
@@ -230,10 +230,12 @@ def abstract_trans(input_path):
 
 
 if __name__ == '__main__':
-	deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_trans_path)
+	#deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_trans_path)
 	# generate_trans_pair('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt',\
 	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt',\
 	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt',\
 	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt')
 	#sentence_alignment('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt')
-	abstract_trans('E:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji2.txt')
+	#abstract_trans('D:\MSRA\dataset\\raw\\twenty_four_history-v2\\trans\shiji2.txt')
+	
+	
