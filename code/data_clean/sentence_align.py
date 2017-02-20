@@ -61,6 +61,8 @@ def find_max_range(count_box,line_id,last_end,last_not_found):
 
 	def find_range(count_box,start_index):
 		i = start_index
+		while len(count_box[i])==0:
+			i+=1
 		consecutive_empty_num = 0
 		max_char_index = 0
 		count = 0
@@ -70,6 +72,7 @@ def find_max_range(count_box,line_id,last_end,last_not_found):
 			if len(count_box[i]) == 0:
 				consecutive_empty_num+=1
 				if consecutive_empty_num>1:
+					i-=1
 					break
 			else:
 				max_char_index = max(count_box[i])
@@ -80,7 +83,10 @@ def find_max_range(count_box,line_id,last_end,last_not_found):
 			i+=1
 			if i == len(count_box):
 				break
-		end_index = i
+		if len(count_box[i-1])==0:
+			end_index = i-1
+		else:
+			end_index = i
 		return end_index,count*num
 	# full_stop_num=0
 	# while i < eof_index:
@@ -130,6 +136,7 @@ def find_max_range(count_box,line_id,last_end,last_not_found):
 			end = end_index
 		i = end_index
 		if line_id == 4:
+			print end_index,score
 			pdb.set_trace()
 
 	return start,end
@@ -137,10 +144,8 @@ def find_max_range(count_box,line_id,last_end,last_not_found):
 
 
 
-
-
-origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','r').readlines()
-trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split2.txt','r').readlines()
+origin_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','r').readlines()
+trans_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split2.txt','r').readlines()
 origin_set = map(lambda x:x.decode('utf-8').strip(),origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip(),trans_set)
 pairs = []

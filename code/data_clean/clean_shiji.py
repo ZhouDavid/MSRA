@@ -22,6 +22,7 @@ def deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_tran
 	'''
 	file = open(in_origin_path,'r')
 	lines = file.readlines()
+	lines =map(lambda x:x.decode('utf-8'),lines)
 	file.close()
 	titles = []
 	context = lines[0:len(lines)]  #正文
@@ -29,30 +30,33 @@ def deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_tran
 	article = ''
 	para = ''
 	for i,line in enumerate(context):
-		index = line.find('●')
+		index = line.find(u'●')
 		if not index ==-1:
 			if len(article)>0:
 				articles.append(article+para+'</para>\n</article>\n')
 				para = ''
 			cur_title = line[index+3:len(line)]
 			titles.append(cur_title)
-			start = cur_title.find('·')+2
-			end = cur_title.find('第')
+			start = cur_title.find(u'·')+2
+			end = cur_title.find(u'第')
 			cur_title= cur_title[start:end]
 			article = '<article>\n  <title>'+cur_title.strip()+'</title>\n'
 
 		else:
-			if line.startswith(' '):
+			if line.startswith(u'　　'):
 				if len(para)>0:
 					article+=para+'</para>\n'
 				para = '  <para>'+line.strip()
 			else:
 				line = line.strip()
+				line = line.replace(u'-',u'')
 				if len(line)>0:
 					para += line
 
 	articles.append(article+para+'</para>\n</article>')
 	file = open(out_origin_path,'w')
+
+	articles = map(lambda x:x.encode('utf-8'),articles)
 	file.writelines(articles)
 	file.close()
 
@@ -230,7 +234,7 @@ def abstract_trans(input_path):
 
 
 if __name__ == '__main__':
-	#deal_with_shiji_origin(in_origin_path,out_origin_path,in_trans_path,out_trans_path)
+	deal_with_shiji_origin('D:\hanshu.txt','./hanshu_split.txt','','')
 	# generate_trans_pair('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin.txt',\
 	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans.txt',\
 	# 	'E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt',\
