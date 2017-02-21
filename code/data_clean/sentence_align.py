@@ -99,8 +99,8 @@ def find_max_range(count_box,line_id):
 
 
 
-origin_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','r').readlines()
-trans_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt','r').readlines()
+origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','r').readlines()
+trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split2.txt','r').readlines()
 origin_set = map(lambda x:x.decode('utf-8').strip(),origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip(),trans_set)
 pairs = []
