@@ -5,7 +5,7 @@ import sentence_sim
 import pdb
 
 #origin_sentence
-def find_match_index(origin_sentence,origin_id,trans_set,last_end,last_not_found):
+def find_match_index(origin_sentence,origin_id,trans_set):
 	start = -1
 	end = -1
 	origin_sentence = sentence_sim.multiple_replace(origin_sentence,charset)
@@ -13,7 +13,7 @@ def find_match_index(origin_sentence,origin_id,trans_set,last_end,last_not_found
 	for x in trans_set:
 		new_trans_set.append(sentence_sim.multiple_replace(x,charset))
 	
-	count_box = []
+	count_box[:] = []
 	for i in range(len(trans_set)):
 		count_box.append([])
 
@@ -22,148 +22,106 @@ def find_match_index(origin_sentence,origin_id,trans_set,last_end,last_not_found
 			if not new_trans_set[i].find(oc)==-1:
 				count_box[i].append(j) 
 
-	start,end = find_max_range(count_box,origin_id,last_end,last_not_found)
+	start,end,score = find_max_range(count_box,origin_id)
 
-	return start,end
-
-# def find_range(count_box,start_index):
-# 	i = start_index
-# 	consecutive_empty_num = 0
-# 	max_char_index = 0
-# 	count = 0
-# 	num = 0
-# 	end_index = start_index+1
-# 	while (len(count_box[i])>0 and max_char_index<max(count_box[i])) or consecutive_empty_num<2:
-# 		if len(count_box[i]) == 0:
-# 			consecutive_empty_num+=1
-# 		else:
-# 			max_char_index = max(count_box[i])
-# 			end_index = i+1
-	
-# 		count+=1
-# 		num+=len(count_box[i])
-
-# 		i+=1
-# 		if i == len(count_box):
-# 			break
-# 	return end_index,count*num
+	return start,end,score
 
 
-def find_max_range(count_box,line_id,last_end,last_not_found):
+def find_max_range(count_box,line_id):
 	max_score = 0
-	start = last_end
-	end = -1
-	i = last_end  #偏置
-	not_found_num = 0
-	eof_index = min(line_id*6,len(count_box))
-	while len(count_box[i])==0:
-		i+=1
+	start = max(3*line_id-3,0)
+	end = 5*line_id+3
+	i =  start
+	actual_start = -1
+	actual_end = -1
 
-	def find_range(count_box,start_index):
-		i = start_index
-		while len(count_box[i])==0:
-			i+=1
+
+
+	def find_range(count_box,raw_start):
+		start_index = raw_start
+		while len(count_box[start_index]) ==0:
+			start_index+=1
+
 		consecutive_empty_num = 0
 		max_char_index = 0
 		count = 0
 		num = 0
 		end_index = start_index+1
-		while (len(count_box[i])>0 and max_char_index<=min(count_box[i])) or consecutive_empty_num<2:
+		end_type = -1
+		inverse_num=0
+		i = start_index
+		while len(count_box[i])>0 or consecutive_empty_num<2:
 			if len(count_box[i]) == 0:
-				consecutive_empty_num+=1
+				if len(count_box[i-1])==0:
+					consecutive_empty_num+=1
+				else:
+					consecutive_empty_num=1
 				if consecutive_empty_num>1:
-					i-=1
+					end_type = 1
+					break
+			elif max_char_index >min(count_box[i]):
+				inverse_num+=1
+				if inverse_num>1:
+					end_type = 0
 					break
 			else:
 				max_char_index = max(count_box[i])
 		
-			count+=1
 			num+=len(count_box[i])
 
 			i+=1
 			if i == len(count_box):
 				break
-		if len(count_box[i-1])==0:
+
+		if end_type == 1:
 			end_index = i-1
 		else:
+			if len(count_box[i-1])==0:
+				i-=1
 			end_index = i
-		return end_index,count*num
-	# full_stop_num=0
-	# while i < eof_index:
-	# 	if len(count_box[i]) > 0:
-	# 		score = 0
-	# 		length = 0
-	# 		num = len(count_box[i])
-	# 		j=i+1
-	# 		while j<end_index and not_found_num<=1:
-	# 			if len(count_box[j]) == 0:
-	# 				if len(trans_set[j])>10:
-	# 					break
-	# 				else:
-	# 					not_found_num+=1
-	# 			if not_found_num>1:
-	# 				j-=1
-	# 				break
-	# 			if len(count_box[j])>0:
-	# 				pdb.set_trace()
-	# 				if max(count_box[j-1])>max(count_box[j]):
-	# 					break
-	# 			if trans_set[j-1].endswith(u'。'):
-	# 				full_stop_num+=1
 
-	# 			if full_stop_num>1:
-	# 				j+=1
-	# 				break
+		return start_index,end_index, num*(end_index-start_index)
 
-	# 			num += len(count_box[j])
-	# 			j+=1
-
-	# 		length = j-i
-	# 		score = num*length
-	# 		if max_score<score:
-	# 				max_score = score
-	# 				start = i
-	# 				end = j
-	# 		i = j
-		
-	# 	else:
-	# 		i+=1
-	while i<eof_index:
-		end_index,score = find_range(count_box,i)
+	while i<end:
+		start_index,end_index,score = find_range(count_box,i)
 		if max_score<score:
 			max_score = score
-			start = i
-			end = end_index
+			actual_start = start_index
+			actual_end = end_index
 		i = end_index
-		if line_id == 4:
-			print end_index,score
-			pdb.set_trace()
 
-	return start,end
+		# if line_id == 4:
+		# 	print end_index,score
+		# 	pdb.set_trace()
+
+	return actual_start,actual_end,max_score
 
 
 
 
 origin_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt','r').readlines()
-trans_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split2.txt','r').readlines()
+trans_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt','r').readlines()
 origin_set = map(lambda x:x.decode('utf-8').strip(),origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip(),trans_set)
 pairs = []
 last_end = 0
 end = 0
-last_not_found = False
+count_box = []
 
 for jj,ors in enumerate(origin_set):
 	if end >= 0:
 		last_end = end
 	else:
 		last_not_found = True
-	start,end = find_match_index(ors,jj+1,trans_set,last_end,last_not_found)
-	print (jj,start,end)
+	start,end,score = find_match_index(ors,jj,trans_set)
+	print (jj,start,end,score)
+	print count_box[start-1:end+1]
+	if jj == 19:
+		pdb.set_trace()
 
-	if not end == -1:
-		trs =''
-		for ii in range(start,end):
-			trs += trans_set[ii]
-		trs+='\n'
-		pairs.append((ors,trs))
+	# if not end == -1:
+	# 	trs =''
+	# 	for ii in range(start,end):
+	# 		trs += trans_set[ii]
+	# 	trs+='\n'
+	# 	pairs.append((ors,trs))
