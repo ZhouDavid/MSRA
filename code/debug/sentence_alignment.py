@@ -2,7 +2,7 @@
 
 charset = u'，。,：?、”“—.！!》《\n'
 import sentence_sim
-import pdb
+import time
 
 
 # origin_sentence
@@ -20,7 +20,7 @@ def find_match_index(origin_sentence, origin_id):
 
 
 def find_max_index(line_id):
-    start_index =max(line_id-300,0)
+    start_index =max(line_id-600,0)
     end_index = min(line_id+10,len(trans_set))
     max_index =-1
     max_length = 0
@@ -29,6 +29,7 @@ def find_max_index(line_id):
         if max_length<count_box[i]:
             max_length = count_box[i]
             max_index = i
+
     return max_index
 def find_max_range(count_box, line_id):
     max_score = 0
@@ -97,7 +98,17 @@ def find_max_range(count_box, line_id):
 
     return actual_start, actual_end, max_score
 
+def update_sets():
+    for i in range(len(candidate_dict)):
+        tmp =''
+        for j in candidate_dict[i]:
+            tmp += origin_set[j].encode('utf-8')
+        tmp += '\n'
+        if len(tmp)>1:
+            split_trans_set.append(trans_set[i].encode('utf-8') + '\n')
+            split_origin_set.append(tmp)
 
+start_time = time.clock()
 origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt', 'r').readlines()
 trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt', 'r').readlines()
 origin_set = map(lambda x: x.decode('utf-8').strip(), origin_set)
@@ -106,37 +117,40 @@ trans_set = map(lambda x:x.decode('utf-8').strip() , trans_set)
 new_origin_set = map(lambda x:sentence_sim.multiple_replace(x,charset),origin_set)
 new_trans_set = map(lambda x:sentence_sim.multiple_replace(x,charset),trans_set)
 candidate_dict = []
-last_end = 0
-end = 0
+split_origin_set=[]
+split_trans_set = []
 
 
 for i in range(len(trans_set)):
     candidate_dict.append([])
+
 for jj, ors in enumerate(new_origin_set):
-    print jj
-    # if jj%100 ==0 and not jj == 0:
-    #     break
+    if jj%1000 ==0 and not jj ==0:
+        print jj
+        fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'w')
+        fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'w')
+        split_origin_set = []
+        split_trans_set = []
+        update_sets()
+        fi.writelines(split_origin_set)
+        fo.writelines(split_trans_set)
+        fi.close()
+        fo.close()
+
     count_box = [0] * len(trans_set)
     index= find_match_index(ors, jj)
     if not index==-1:
         candidate_dict[index].append(jj)
 
-last_index = -2
-result = []
+print 'almost finished'
+update_sets()
 
-new_origin_set = []
-new_trans_set = []
-
-for i in range(len(candidate_dict)):
-    tmp = ''
-    for j in candidate_dict[i]:
-        tmp+=origin_set[j].encode('utf-8')
-    tmp+='\n'
-    if len(tmp)>1:
-        new_trans_set.append(trans_set[i].encode('utf-8')+'\n')
-        new_origin_set.append(tmp)
-
-
-open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt','w').writelines(new_origin_set)
-open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt','w').writelines(new_trans_set)
+fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'w')
+fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'w')
+fi.writelines(split_origin_set)
+fo.writelines(split_trans_set)
+fi.close()
+fo.close()
+end_time = time.clock()
+print '{} seconds'.format(end_time-start_time)
 
