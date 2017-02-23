@@ -36,6 +36,22 @@ def split_sentence(sentence):
 	sentences = sentence.split(u'。')
 	return sentences
 
+
+def find_match_sentence(origin_sentence,trans_sentences):
+    count_box = [0]*len(trans_sentences)
+    for j, oc in enumerate(origin_sentence):
+        for i in range(len(trans_sentences)):
+            if not trans_sentences[i].find(oc) == -1:
+                count_box[i]+=1
+
+    max_length = -1
+    for i in range(len(trans_sentences)):
+    	if max_length < count_box[i]:
+    		max_length = count_box[i]
+    		index = i
+
+    return trans_sentences[index]
+
 if __name__ == '__main__':
 	input_path_list = ['D:\MSRA\dataset\\raw\zizhitongjian\origin8.txt','D:\MSRA\dataset\\raw\zizhitongjian\\trans8.txt']
 	output_path_list=['D:\MSRA\dataset\\raw\zizhitongjian\\split_origin8.txt','D:\MSRA\dataset\\raw\zizhitongjian\\split_trans8.txt']
@@ -69,7 +85,10 @@ if __name__ == '__main__':
 				write_sentences(origin_split_sentences,fout1)
 				write_sentences(trans_split_sentences,fout2)
 			else:
-				fout1.write(origin_sentences[i].encode('utf-8')+'\n')
-				fout2.write(trans_sentences[i].encode('utf-8')+'\n')
-
+				if len(origin_sentences[i])>50:
+					for origin_sentence in origin_split_sentences:
+						trans_sentence = find_match_sentence(origin_sentence,trans_split_sentences)
+						fout1.write(origin_sentence+'\n')
+						fout2.write(trans_sentence+'\n')
+				elif len(origin_sentences[i])>
 
