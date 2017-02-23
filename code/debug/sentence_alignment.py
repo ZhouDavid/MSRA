@@ -9,7 +9,6 @@ import time
 def find_match_index(origin_sentence, origin_id):
     start = -1
     end = -1
-
     for j, oc in enumerate(origin_sentence):
         for i in range(len(trans_set)):
             if not new_trans_set[i].find(oc) == -1:
@@ -20,8 +19,8 @@ def find_match_index(origin_sentence, origin_id):
 
 
 def find_max_index(line_id):
-    start_index =max(line_id-600,0)
-    end_index = min(line_id+10,len(trans_set))
+    start_index =max(line_id-10,0)
+    end_index = min(line_id+3200,len(trans_set))
     max_index =-1
     max_length = 0
 
@@ -109,9 +108,9 @@ def update_sets():
             split_origin_set.append(tmp)
 
 start_time = time.clock()
-origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt', 'r').readlines()
-trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt', 'r').readlines()
-origin_set = map(lambda x: x.decode('utf-8').strip(), origin_set)
+origin_set = open('D:\MSRA\dataset\\raw\zizhitongjian\origin_split.txt', 'r').readlines()
+trans_set = open('D:\MSRA\dataset\\raw\zizhitongjian\\trans_split.txt', 'r').readlines()
+origin_set = map(lambda x:x.decode('utf-8').strip(), origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip() , trans_set)
 
 new_origin_set = map(lambda x:sentence_sim.multiple_replace(x,charset),origin_set)
@@ -125,10 +124,10 @@ for i in range(len(trans_set)):
     candidate_dict.append([])
 
 for jj, ors in enumerate(new_origin_set):
-    if jj%1000 ==0 and not jj ==0:
+    if jj%100 ==0 and not jj ==0:
         print jj
-        fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'w')
-        fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'w')
+        fi = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_origin_split.txt', 'w')
+        fo = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_trans_split.txt', 'w')
         split_origin_set = []
         split_trans_set = []
         update_sets()
@@ -143,10 +142,12 @@ for jj, ors in enumerate(new_origin_set):
         candidate_dict[index].append(jj)
 
 print 'almost finished'
+split_origin_set = []
+split_trans_set = []
 update_sets()
 
-fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'w')
-fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'w')
+fi = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_origin_split.txt', 'w')
+fo = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_trans_split.txt', 'w')
 fi.writelines(split_origin_set)
 fo.writelines(split_trans_set)
 fi.close()

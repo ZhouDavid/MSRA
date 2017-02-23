@@ -23,29 +23,22 @@ def write_split_line(sline,fout):
 
 def write_sentences(sentences,fout):
 	ss = []
+	sentences = map(lambda x:x.encode('utf-8')+u'。\n',sentences)
 	for s in sentences:
-		ss.append(s+'\n')
-
-
-	# ls = ss[len(ss)-1]
-	# ls = ls.strip()
-	# ss[len(ss)-1] = ls
+		if len(s)>2:
+			ss.append(s)
 	fout.writelines(ss)
-	# for s in sentences:
-	# 	fout.write(s+'\n')
+
 
 def split_sentence(sentence):
 	sentence = unicode(sentence).strip()
-	#sentence = sentence.strip()
-	for i in ('，','。'):
-		sentence = sentence.replace(i,i+' ')
 	sentences = []
-	sentences = sentence.split()
+	sentences = sentence.split(u'。')
 	return sentences
 
 if __name__ == '__main__':
-	input_path_list = ['D:\data\\raw\zizhi\origin2.txt','D:\data\\raw\zizhi\\trans2.txt']
-	output_path_list=['D:\data\clean\zizhitongjian\\split_origin2.txt','D:\data\clean\zizhitongjian\\split_trans2.txt']
+	input_path_list = ['D:\MSRA\dataset\\raw\zizhitongjian\origin8.txt','D:\MSRA\dataset\\raw\zizhitongjian\\trans8.txt']
+	output_path_list=['D:\MSRA\dataset\\raw\zizhitongjian\\split_origin8.txt','D:\MSRA\dataset\\raw\zizhitongjian\\split_trans8.txt']
 	# for i,path in enumerate(input_path_list):
 	# 	file = open(path,'r')
 	# 	fout = open(output_path_list[i],'w')
@@ -63,18 +56,20 @@ if __name__ == '__main__':
 
 	origin_sentences = fin1.readlines()
 	trans_sentences = fin2.readlines()
-	if len(origin_sentences)==len(trans_sentences):  #理论上应该是相等的，因为句子数量是一样的
+
+	origin_sentences = map(lambda x:x.decode('utf-8').strip(),origin_sentences)
+	trans_sentences = map(lambda x:x.decode('utf-8').strip(),trans_sentences)
+
+	if len(origin_sentences)==len(trans_sentences): #理论上应该是相等的，因为句子数量是一样的
 		length = len(origin_sentences)   
 		for i in range(length):
-			origin_sentence = unicode(origin_sentences[i])
-			trans_sentence = unicode(trans_sentences[i])
-			# if len(origin_sentence)>=10 and len(origin_sentence)<=50:#如果句子长度不是很长就不split了
-			# 	write_sentences([origin_sentence],fout1)
-			# 	write_sentences([trans_sentence],fout2)
-	
-			origin_split_sentences = split_sentence(origin_sentence)
+			origin_split_sentences = split_sentence(origin_sentences[i])
 			trans_split_sentences = split_sentence(trans_sentences[i])
 			if len(origin_split_sentences) == len(trans_split_sentences):#split出来的数量相等才保留
 				write_sentences(origin_split_sentences,fout1)
 				write_sentences(trans_split_sentences,fout2)
+			else:
+				fout1.write(origin_sentences[i].encode('utf-8')+'\n')
+				fout2.write(trans_sentences[i].encode('utf-8')+'\n')
+
 
