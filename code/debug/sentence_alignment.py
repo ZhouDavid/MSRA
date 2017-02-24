@@ -20,16 +20,15 @@ def find_match_index(origin_sentence, origin_id):
 
 def find_max_index(line_id):
     start_index =max(line_id-10,0)
-    end_index = min(line_id+3200,len(trans_set))
+    end_index = min(line_id+1000,len(trans_set))
     max_index =-1
     max_length = 0
-
     for i in range(start_index,end_index):
         if max_length<count_box[i]:
             max_length = count_box[i]
             max_index = i
-
     return max_index
+
 def find_max_range(count_box, line_id):
     max_score = 0
     start = max(3 * line_id - 3, 0)
@@ -108,8 +107,8 @@ def update_sets():
             split_origin_set.append(tmp)
 
 start_time = time.clock()
-origin_set = open('D:\MSRA\dataset\\raw\zizhitongjian\origin_split.txt', 'r').readlines()
-trans_set = open('D:\MSRA\dataset\\raw\zizhitongjian\\trans_split.txt', 'r').readlines()
+origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp_origin.txt', 'r').readlines()
+trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp_trans.txt', 'r').readlines()
 origin_set = map(lambda x:x.decode('utf-8').strip(), origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip() , trans_set)
 
@@ -126,30 +125,28 @@ for i in range(len(trans_set)):
 for jj, ors in enumerate(new_origin_set):
     if jj%100 ==0 and not jj ==0:
         print jj
-        fi = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_origin_split.txt', 'w')
-        fo = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_trans_split.txt', 'w')
-        split_origin_set = []
-        split_trans_set = []
-        update_sets()
+        fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp1.txt', 'a')
+        fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp2.txt', 'a')
         fi.writelines(split_origin_set)
         fo.writelines(split_trans_set)
+        split_origin_set = []
+        split_trans_set = []
         fi.close()
         fo.close()
 
     count_box = [0] * len(trans_set)
     index= find_match_index(ors, jj)
     if not index==-1:
-        candidate_dict[index].append(jj)
+        split_origin_set.append(origin_set[jj].encode('utf-8')+'\n')
+        split_trans_set.append(trans_set[index].encode('utf-8')+'\n')
 
 print 'almost finished'
-split_origin_set = []
-split_trans_set = []
-update_sets()
 
-fi = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_origin_split.txt', 'w')
-fo = open('D:\MSRA\dataset\\raw\zizhitongjian\\new_trans_split.txt', 'w')
-fi.writelines(split_origin_set)
-fo.writelines(split_trans_set)
+
+fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'a')
+fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'a')
+split_origin_set.append(origin_set[jj].encode('utf-8') + '\n')
+split_trans_set.append(trans_set[index].encode('utf-8') + '\n')
 fi.close()
 fo.close()
 end_time = time.clock()
