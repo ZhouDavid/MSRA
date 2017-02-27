@@ -13,17 +13,15 @@ def multiple_replace(text, cdict):
 
 def similarity(origin_sentence, trans_sentence):
     num = 0
-    step = 3
-    origin_sentence = origin_sentence.decode('utf-8')
-    trans_sentence = trans_sentence.decode('utf-8')
     origin_sentence = multiple_replace(origin_sentence, charset)
     trans_sentence = multiple_replace(trans_sentence, charset)
 
     for char in origin_sentence:
         if char in trans_sentence:
             num += 1
-
-    return float(num) / (len(origin_sentence) + len(trans_sentence)), (num, len(origin_sentence), len(trans_sentence))
+    if len(origin_sentence) + len(trans_sentence)==0:
+        return -1
+    return float(num) / (len(origin_sentence) + len(trans_sentence))
 
 
 if __name__ == '__main__':

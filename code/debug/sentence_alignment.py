@@ -19,8 +19,8 @@ def find_match_index(origin_sentence, origin_id):
 
 
 def find_max_index(line_id):
-    start_index =max(line_id-10,0)
-    end_index = min(line_id+1000,len(trans_set))
+    start_index =max(line_id-500,0)
+    end_index = min(line_id+500,len(trans_set))
     max_index =-1
     max_length = 0
     for i in range(start_index,end_index):
@@ -107,8 +107,8 @@ def update_sets():
             split_origin_set.append(tmp)
 
 start_time = time.clock()
-origin_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp_origin.txt', 'r').readlines()
-trans_set = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp_trans.txt', 'r').readlines()
+origin_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_origin_split.txt', 'r').readlines()
+trans_set = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_trans_split.txt', 'r').readlines()
 origin_set = map(lambda x:x.decode('utf-8').strip(), origin_set)
 trans_set = map(lambda x:x.decode('utf-8').strip() , trans_set)
 
@@ -122,11 +122,13 @@ split_trans_set = []
 for i in range(len(trans_set)):
     candidate_dict.append([])
 
+last_ors = ''
+last_index = 0
 for jj, ors in enumerate(new_origin_set):
     if jj%100 ==0 and not jj ==0:
         print jj
-        fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp1.txt', 'a')
-        fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\\tmp2.txt', 'a')
+        fi = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_new_origin_split.txt', 'a')
+        fo = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_new_trans_split.txt', 'a')
         fi.writelines(split_origin_set)
         fo.writelines(split_trans_set)
         split_origin_set = []
@@ -137,16 +139,25 @@ for jj, ors in enumerate(new_origin_set):
     count_box = [0] * len(trans_set)
     index= find_match_index(ors, jj)
     if not index==-1:
-        split_origin_set.append(origin_set[jj].encode('utf-8')+'\n')
-        split_trans_set.append(trans_set[index].encode('utf-8')+'\n')
+        if not index == last_index:
+            split_origin_set.append(last_ors.encode('utf-8')+'\n')
+            split_trans_set.append(trans_set[last_index].encode('utf-8')+'\n')
+            last_ors =origin_set[jj]
+            last_index = index
+        else:
+            last_ors += origin_set[jj]
 
 print 'almost finished'
 
 
-fi = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'a')
-fo = open('E:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'a')
-split_origin_set.append(origin_set[jj].encode('utf-8') + '\n')
-split_trans_set.append(trans_set[index].encode('utf-8') + '\n')
+fi = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_origin_split.txt', 'a')
+fo = open('D:\MSRA\dataset\\raw\\twenty_four_history\shiji\shiji_new_trans_split.txt', 'a')
+split_origin_set.append(last_ors.encode('utf-8') + '\n')
+split_trans_set.append(trans_set[last_index].encode('utf-8') + '\n')
+
+fi.writelines(split_origin_set)
+fo.writelines(split_trans_set)
+
 fi.close()
 fo.close()
 end_time = time.clock()

@@ -52,14 +52,14 @@ def find_match_sentence(origin_sentence, trans_sentences):
             max_length = count_box[i]
             index = i
 
-    return trans_sentences[index], max_length
+    return index, max_length
 
 
 if __name__ == '__main__':
-    input_path_list = ['E:\MSRA\dataset\\raw\zizhitongjian\origin8.txt',
-                       'E:\MSRA\dataset\\raw\zizhitongjian\\trans8.txt']
-    output_path_list = ['E:\MSRA\dataset\\raw\zizhitongjian\\split_origin8.txt',
-                        'E:\MSRA\dataset\\raw\zizhitongjian\\split_trans8.txt']
+    input_path_list = ['D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_origin_para_aligned.txt',
+                       'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_trans_para_aligned.txt']
+    output_path_list = ['D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_origin_sentence_aligned.txt',
+                        'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_trans_sentence_aligned.txt']
 
     fin1 = open(input_path_list[0], 'r')
     fin2 = open(input_path_list[1], 'r')
@@ -72,6 +72,8 @@ if __name__ == '__main__':
     origin_sentences = map(lambda x: x.decode('utf-8').strip(), origin_sentences)
     trans_sentences = map(lambda x: x.decode('utf-8').strip(), trans_sentences)
     count = 0
+
+
     if len(origin_sentences) == len(trans_sentences):  # 理论上应该是相等的，因为句子数量是一样的
         length = len(origin_sentences)
         for i in range(length):
@@ -80,27 +82,31 @@ if __name__ == '__main__':
 
             if len(origin_split_sentences) == len(trans_split_sentences):  # split出来的数量相等才保留
                 for j in range(len(origin_split_sentences)):
-                    if len(origin_split_sentences[j])==0:
+                    if len(origin_split_sentences[j]) == 0:
                         del origin_split_sentences[j]
                         del trans_split_sentences[j]
                 write_sentences(origin_split_sentences, fout1)
                 write_sentences(trans_split_sentences, fout2)
             else:
                 if len(origin_sentences[i]) > 50:
-                    if i ==182:
-                        print i
+                    last_ors = ''
+                    last_index = 0
                     for origin_sentence in origin_split_sentences:
-                        if len(origin_sentence) > 0:
-                            trans_sentence, score = find_match_sentence(origin_sentence, trans_split_sentences)
-                            if score > 3:
-                                fout1.write(origin_sentence + u'。\n')
-                                fout2.write(trans_sentence + u'。\n')
-                                # print unicode(origin_sentence),'->',unicode(trans_sentence)
-                                # print score
-                                # input()
-                                count += 1
+                        if len(origin_sentence) > 3:
+                            index, score = find_match_sentence(origin_sentence, trans_split_sentences)
+                            if not last_index == index:
+                                if score > 3:
+                                    fout1.write(last_ors + u'。\n')
+                                    fout2.write(trans_split_sentences[last_index] + u'。\n')
+                                    last_index = index
+                                    last_ors = origin_sentence
+                                    count += 1
+                            else:
+                                last_ors += origin_sentence+u'。'
+                    if len(last_ors) > 3:
+                        fout1.write(last_ors + u'。\n')
+                        fout2.write(trans_split_sentences[last_index] + u'。\n')
+
                 elif len(origin_sentences[i]) > 1:
                     fout1.write(origin_sentences[i] + u'。\n')
                     fout2.write(trans_sentences[i] + u'。\n')
-
-print count
