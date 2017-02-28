@@ -54,59 +54,52 @@ def find_match_sentence(origin_sentence, trans_sentences):
 
     return index, max_length
 
-
-if __name__ == '__main__':
-    input_path_list = ['D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_origin_para_aligned.txt',
-                       'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_trans_para_aligned.txt']
-    output_path_list = ['D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_origin_sentence_aligned.txt',
-                        'D:\MSRA\dataset\\raw\\twenty_four_history\shiji\\shiji_trans_sentence_aligned.txt']
-
-    fin1 = open(input_path_list[0], 'r')
-    fin2 = open(input_path_list[1], 'r')
-    fout1 = open(output_path_list[0], 'w')
-    fout2 = open(output_path_list[1], 'w')
-
-    origin_sentences = fin1.readlines()
-    trans_sentences = fin2.readlines()
-
-    origin_sentences = map(lambda x: x.decode('utf-8').strip(), origin_sentences)
-    trans_sentences = map(lambda x: x.decode('utf-8').strip(), trans_sentences)
-    count = 0
-
-
-    if len(origin_sentences) == len(trans_sentences):  # 理论上应该是相等的，因为句子数量是一样的
-        length = len(origin_sentences)
+def sentence_align(ors_aligned_paras,trs_aligned_paras):
+    ors_aligned_sentences = []
+    trs_aligned_sentences = []
+    if len(ors_aligned_paras) == len(trs_aligned_paras):  # 理论上应该是相等的，因为句子数量是一样的
+        length = len(ors_aligned_paras)
         for i in range(length):
-            origin_split_sentences = split_sentence(origin_sentences[i])
-            trans_split_sentences = split_sentence(trans_sentences[i])
+            ors_sentences = split_sentence(ors_aligned_paras[i])
+            trs_sentences = split_sentence(trs_aligned_paras[i])
 
-            if len(origin_split_sentences) == len(trans_split_sentences):  # split出来的数量相等才保留
-                for j in range(len(origin_split_sentences)):
-                    if len(origin_split_sentences[j]) == 0:
-                        del origin_split_sentences[j]
-                        del trans_split_sentences[j]
-                write_sentences(origin_split_sentences, fout1)
-                write_sentences(trans_split_sentences, fout2)
+            if len(ors_sentences) == len(trs_sentences):  # split出来的数量相等才保留
+                j=0
+                while j< len(ors_sentences):
+                    if len(ors_sentences[j]) == 0:
+                        del ors_sentences[j]
+                        del trs_sentences[j]
+                        j-=1
+                    j+=1
+                ors_aligned_sentences.extend(ors_sentences)
+                trs_aligned_sentences.extend(trs_sentences)
             else:
-                if len(origin_sentences[i]) > 50:
+                if len(ors_aligned_paras[i]) > 50:
                     last_ors = ''
                     last_index = 0
-                    for origin_sentence in origin_split_sentences:
+                    for origin_sentence in ors_sentences:
                         if len(origin_sentence) > 3:
-                            index, score = find_match_sentence(origin_sentence, trans_split_sentences)
+                            index, score = find_match_sentence(origin_sentence, trs_sentences)
                             if not last_index == index:
                                 if score > 3:
-                                    fout1.write(last_ors + u'。\n')
-                                    fout2.write(trans_split_sentences[last_index] + u'。\n')
+                                    ors_aligned_sentences.append(last_ors)
+                                    trs_aligned_sentences.append(trs_sentences[last_index])
                                     last_index = index
                                     last_ors = origin_sentence
-                                    count += 1
                             else:
                                 last_ors += origin_sentence+u'。'
                     if len(last_ors) > 3:
-                        fout1.write(last_ors + u'。\n')
-                        fout2.write(trans_split_sentences[last_index] + u'。\n')
+                        ors_aligned_sentences.append(last_ors)
+                        trs_aligned_sentences.append(trs_sentences[last_index])
 
-                elif len(origin_sentences[i]) > 1:
-                    fout1.write(origin_sentences[i] + u'。\n')
-                    fout2.write(trans_sentences[i] + u'。\n')
+                elif len(ors_aligned_paras[i]) > 1:
+                    ors_aligned_sentences.append(ors_aligned_paras[i])
+                    trs_aligned_sentences.append(trs_aligned_paras[i])
+
+    for i in range(len(ors_aligned_sentences)):
+        if not ors_aligned_sentences[i].endswith(u'。') and not ors_aligned_sentences[i].endswith(u'?'):
+            ors_aligned_sentences[i]+=u'。'
+        if not trs_aligned_sentences[i].endswith(u'。') and not trs_aligned_sentences[i].endswith(u'?'):
+            trs_aligned_sentences[i] += u'。'
+
+    return ors_aligned_sentences,trs_aligned_sentences

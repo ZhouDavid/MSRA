@@ -19,6 +19,8 @@ def para_search(org_para,trs_para_set):
             max_index = index
     if max_score<0.1:
         return -1
+    if len(org_para)>len(trs_para_set[max_index]):
+        return -1
     return max_index
 
 
@@ -54,8 +56,10 @@ def para_align(my_org_file,my_trs_file,out_path):
         i+=1
 
     for i,org_para in enumerate(origin_paras):
+        start_index = max(0,i-1000)
+        end_index = min(len(trans_paras),i+2000)
         if len(org_para)>0:
-            trs_para_set = trans_paras[i:i+150]
+            trs_para_set = trans_paras[start_index:end_index]
             index = para_search(org_para,trs_para_set)
             if not index==-1:
                 new_origin_paras.append(org_para)
