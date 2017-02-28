@@ -66,47 +66,49 @@ if __name__ == '__main__':
     fout1 = open(output_path_list[0], 'w')
     fout2 = open(output_path_list[1], 'w')
 
-    origin_sentences = fin1.readlines()
-    trans_sentences = fin2.readlines()
+    ors_paras = fin1.readlines()
+    trs_paras = fin2.readlines()
 
-    origin_sentences = map(lambda x: x.decode('utf-8').strip(), origin_sentences)
-    trans_sentences = map(lambda x: x.decode('utf-8').strip(), trans_sentences)
-    count = 0
+    ors_paras = map(lambda x: x.decode('utf-8').strip(), ors_paras)
+    trs_paras = map(lambda x: x.decode('utf-8').strip(), trs_paras)
 
-
-    if len(origin_sentences) == len(trans_sentences):  # 理论上应该是相等的，因为句子数量是一样的
-        length = len(origin_sentences)
+def sentence_align(ors_paras,trs_paras):
+    aligned_ors_sentences=[]
+    aligned_trs_sentences=[]
+    if len(ors_paras) == len(trs_paras):  # 理论上应该是相等的，因为句子数量是一样的
+        length = len(ors_paras)
         for i in range(length):
-            origin_split_sentences = split_sentence(origin_sentences[i])
-            trans_split_sentences = split_sentence(trans_sentences[i])
-
-            if len(origin_split_sentences) == len(trans_split_sentences):  # split出来的数量相等才保留
-                for j in range(len(origin_split_sentences)):
-                    if len(origin_split_sentences[j]) == 0:
-                        del origin_split_sentences[j]
-                        del trans_split_sentences[j]
-                write_sentences(origin_split_sentences, fout1)
-                write_sentences(trans_split_sentences, fout2)
+            ors_sentences = split_sentence(ors_paras[i])
+            trs_sentences = split_sentence(trs_paras[i])
+            if len(ors_sentences) == len(trs_sentences):  # split出来的数量相等才保留
+                j = 0
+                while j < len(ors_sentences):
+                    if len(ors_sentences[j]) == 0:
+                        del ors_sentences[j]
+                        del trs_sentences[j]
+                        j-=1
+                    j+=1
+                aligned_ors_sentences.extend(ors_sentences)
+                aligned_trs_sentences.extend(trs_sentences)
             else:
-                if len(origin_sentences[i]) > 50:
+                if len(ors_paras[i]) > 50:
                     last_ors = ''
                     last_index = 0
-                    for origin_sentence in origin_split_sentences:
+                    for origin_sentence in ors_sentences:
                         if len(origin_sentence) > 3:
-                            index, score = find_match_sentence(origin_sentence, trans_split_sentences)
+                            index, score = find_match_sentence(origin_sentence, trs_sentences)
                             if not last_index == index:
                                 if score > 3:
-                                    fout1.write(last_ors + u'。\n')
-                                    fout2.write(trans_split_sentences[last_index] + u'。\n')
+                                    aligned_ors_sentences.append(last_ors)
+                                    aligned_trs_sentences.append(trs_sentences[last_index])
                                     last_index = index
                                     last_ors = origin_sentence
-                                    count += 1
                             else:
                                 last_ors += origin_sentence+u'。'
                     if len(last_ors) > 3:
-                        fout1.write(last_ors + u'。\n')
-                        fout2.write(trans_split_sentences[last_index] + u'。\n')
-
-                elif len(origin_sentences[i]) > 1:
-                    fout1.write(origin_sentences[i] + u'。\n')
-                    fout2.write(trans_sentences[i] + u'。\n')
+                        aligned_ors_sentences.append(last_ors)
+                        aligned_trs_sentences.append(trs_sentences[last_index])
+                elif len(ors_paras[i]) > 1:
+                    aligned_ors_sentences.append(ors_paras[i])
+                    aligned_trs_sentences.append(trs_paras[i])
+    return aligned_ors_sentences,aligned_trs_sentences
