@@ -10,7 +10,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 4:
         print('<usage>:<origin file path> <translation file path> <output path>.')
         exit(0)
-    max_length = 30
+    max_length = 20
     org_file = sys.argv[1]
     trs_file = sys.argv[2]
     out_path = sys.argv[3]
